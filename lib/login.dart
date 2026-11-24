@@ -31,7 +31,7 @@ class Loginscreen extends StatelessWidget {
               StatefulBuilder(
                 builder: (context,ss) {
                   return TextField(
-                    // controller: password,
+                    controller: password,
                     obscureText: obSecureText,
                     decoration: AppDesigns.inputDecoration(label: "Enter Your Password",text: "Password")
 //this way we can add logic
@@ -52,12 +52,17 @@ class Loginscreen extends StatelessWidget {
                     // ),
                   );
                 }
-              ),              SizedBox(height: 20,),
+              ),
+                SizedBox(height: 20,),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(onPressed:  () {
                       print("success");
+                      if(emailController.text != null && password.text != null && emailController.text == 'm' && password.text == 'm' ){
+                        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+                      }
+                                            
                     }, child: Text("Login"),style : AppDesigns.elevatedButtonStyle),
                   ),
                   SizedBox(width: 20,),
