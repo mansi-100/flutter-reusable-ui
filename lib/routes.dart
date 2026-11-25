@@ -11,13 +11,15 @@ class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const dashboard = '/dashboard';
+  static const details = '/details';
 
   static Map<String, WidgetBuilder> paths = {
     homePath: (_) => MyHomePage(title: 'welcome'),
     splash : (_) => SplashScreen(),
     login: (_) => Loginscreen(),
     register : (_) => Register(),
-    dashboard : (_) => Dashboard()
+    dashboard : (_) => Dashboard(),
+    // details : (_) => Details just passed directly
   };
 
 }

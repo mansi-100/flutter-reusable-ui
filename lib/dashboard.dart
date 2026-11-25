@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_reusable_ui/app_designs.dart';
+import 'package:flutter_reusable_ui/product_detail_page.dart';
 import 'package:flutter_reusable_ui/widgets/app_carsouel.dart';
 import 'package:flutter_reusable_ui/widgets/app_textfield.dart';
 
@@ -152,26 +153,38 @@ class _DashboardState extends State<Dashboard>{
                   physics: NeverScrollableScrollPhysics(),
                   gridDelegate:  SliverGridDelegateWithMaxCrossAxisExtent( //they given fix we given dynamic
                     maxCrossAxisExtent: 200, //means same height and width
-
-
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                
                   ),
                   itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(image: NetworkImage(items[index]["image"]!),fit: BoxFit.cover
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailPage(items: items,index: index,),));
+                      },
+                      child: Hero(
+                        tag: index,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(image: NetworkImage(items[index]["image"]!),
+                                fit: BoxFit.cover
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(items[index]["name"]!),
-                              Icon(Icons.favorite)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text(items[index]["name"]!)),
+                                  Icon(Icons.favorite)
+                                ],
+                              ),
+                              // SizedBox(height: 80,)
                             ],
                           ),
-                          SizedBox(height: 80,)
-                        ],
+                        ),
                       ),
                     );
                   },)
@@ -182,6 +195,7 @@ class _DashboardState extends State<Dashboard>{
       ),
     );
   }
+//rn we faced issue on hero nav during back button because what we doing is we have taken entire row in appbar which causes an issue
 
 }
 
