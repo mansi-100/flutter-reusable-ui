@@ -15,6 +15,7 @@ class AppDesigns {
               borderSide: BorderSide(color: Colors.green.shade900)
           ),
           hintText: text,
+          // alignLabelWithHint: true,
           label: Text(label),
           suffixIcon: IconButton(icon : isPassVisible ? Icon(Icons.remove_red_eye_outlined) : Icon(Icons.remove_red_eye),
           onPressed: (){

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reusable_ui/app_designs.dart';
 import 'package:flutter_reusable_ui/routes.dart';
+import 'package:flutter_reusable_ui/splash_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginscreen extends StatelessWidget {
    Loginscreen({super.key});
@@ -57,10 +59,13 @@ class Loginscreen extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(onPressed:  () {
+                    child: ElevatedButton(onPressed:  () async {
                       print("success");
                       if(emailController.text != null && password.text != null && emailController.text == 'm' && password.text == 'm' ){
                         Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setBool(SplashScreen.loginKey, true);
+
                       }
                                             
                     }, child: Text("Login"),style : AppDesigns.elevatedButtonStyle),

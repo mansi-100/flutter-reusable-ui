@@ -2,16 +2,28 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_reusable_ui/dashboard.dart';
+import 'package:flutter_reusable_ui/login.dart';
 import 'package:flutter_reusable_ui/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatelessWidget {
+  static const String loginKey = 'isLogin';
   const SplashScreen({super.key});
   @override
   Widget build(BuildContext context) {
+    Timer(Duration(seconds: 3),()async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool isLoggedIn = prefs.getBool(loginKey) ?? false ;
 
-    Timer(Duration(seconds: 3),(){
-      Navigator.pushReplacementNamed(context,AppRoutes.login);
-    });
+      Widget screen = Loginscreen();
+      if(isLoggedIn){
+        screen = Dashboard();
+      }
+      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => screen,));
+
+      });
+
     return Scaffold(
       body: Container(
         height: double.infinity,

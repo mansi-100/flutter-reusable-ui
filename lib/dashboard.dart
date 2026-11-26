@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_reusable_ui/app_designs.dart';
+import 'package:flutter_reusable_ui/db_helper.dart';
+import 'package:flutter_reusable_ui/login.dart';
 import 'package:flutter_reusable_ui/product_detail_page.dart';
+import 'package:flutter_reusable_ui/splash_screen.dart';
 import 'package:flutter_reusable_ui/widgets/app_carsouel.dart';
 import 'package:flutter_reusable_ui/widgets/app_textfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
    Dashboard({super.key});
@@ -47,6 +51,25 @@ class _DashboardState extends State<Dashboard>{
   ];
 
   int index=0;
+  var titleController = TextEditingController();
+  var descController = TextEditingController();
+  List<Map<String,dynamic>> notes =[];
+
+  DbHelper? dbHelper;
+
+  @override
+  void initState() {
+    super.initState();
+    dbHelper = DbHelper.getInstance();
+    getNotes();
+  }
+ getNotes() async {
+    notes = await dbHelper!.getAllNotes();
+    setState(() {
+
+    });
+
+ }
   @override
   Widget build(BuildContext context) {
     return PopScope( //this prevents also back btn to go back to main route
@@ -94,7 +117,13 @@ class _DashboardState extends State<Dashboard>{
               ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ClipOval(child: Icon(Icons.card_travel),),
+                    child: InkWell(
+                        onTap: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          prefs.setBool(SplashScreen.loginKey,false);
+                          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => Loginscreen(),));
+                        },
+                        child: ClipOval(child: Icon(Icons.logout),)),
                   )),
               SizedBox(width: 15,),
 
@@ -187,15 +216,137 @@ class _DashboardState extends State<Dashboard>{
                         ),
                       ),
                     );
-                  },)
+                  },),
+                 notes.isNotEmpty ? ListView.builder(itemCount: notes.length,
+
+                     shrinkWrap: true, //= Don't take all available space; take only the space your children need.
+                   physics:  NeverScrollableScrollPhysics() ,// means let parent handle scrolling aanuy potanu b scrolling che je apde disbled krie chie,
+
+                     itemBuilder: (context, index) {
+                   return ListTile(
+                     title: Text(notes[index][DbHelper.noteTitle]),
+                     subtitle: Text(notes[index][DbHelper.noteDescription]),
+                     trailing: Row(
+                       mainAxisSize: MainAxisSize.min,
+                       mainAxisAlignment: MainAxisAlignment.end,
+                       children: [
+                         IconButton(onPressed: () {
+                            showModalBottomSheet(context: context, builder: (context) {
+                              return _bottomSheetUI();
+                            },);
+                         }, icon: Icon(Icons.edit)),
+                         IconButton(onPressed: () async {
+                            bool isDeleted =await dbHelper!.deleteNote(Id: index);
+                            if(isDeleted){
+                              getNotes();
+                            }
+                         }, icon: Icon(Icons.delete)),
+
+                       ],
+                     ),
+                   );
+                 },)
+                     : Center(
+                        child: CircularProgressIndicator(),
+                 )
+
                ],
             ),
           ),
         ),
+        floatingActionButton: FloatingActionButton.extended(onPressed: () {
+              showModalBottomSheet(context: context, builder:(context) {
+                return _bottomSheetUI();
+                },);
+        }, label:Text("Add note"),
+        icon: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat ,
       ),
     );
   }
+
+  @override
+  void dispose() {
+
+  }
 //rn we faced issue on hero nav during back button because what we doing is we have taken entire row in appbar which causes an issue
+
+  Widget _bottomSheetUI({bool? isEdit}){
+    return Container(
+      decoration: BoxDecoration(
+          gradient: RadialGradient(
+
+            colors: [
+              Color(0xfffdebd3),
+              Color(0xfffce6db),
+
+            ],
+            radius: 0.7,
+            center: AlignmentGeometry.center,
+          )
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(Icons.close)
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller : titleController,
+                    decoration: AppDesigns.inputDecoration(text: 'Enter Title', label: 'Title'),
+                  ),
+                  SizedBox(height: 25,),
+                  TextField(
+                    maxLines: 4,
+                    controller : descController,
+                    decoration: AppDesigns.inputDecoration(text: 'Enter Description', label: 'Description'),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: ElevatedButton(style: AppDesigns.elevatedBtStyle(bgcolor: Colors.red),onPressed: () {
+                    Navigator.pop(context);
+                  }, child: Text("Cancel")),
+                ),
+                SizedBox(width: 5,),
+                Expanded(
+                  child: ElevatedButton(style: AppDesigns.elevatedBtStyle(),onPressed: () async {
+                    bool isAdded  =  await dbHelper!.add(title: titleController.text, description: descController.text);
+                    if(isAdded){
+                      getNotes();
+                      titleController.clear();
+                      descController.clear();
+                      Navigator.pop(context);
+
+                    }
+
+
+                  }, child: Text("Add")),
+                ),
+
+              ],
+            )
+
+          ],
+        ),
+      ),
+
+    );
+
+  }
 
 }
 
