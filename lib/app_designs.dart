@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppDesigns {
   //this is a fun
   static InputDecoration inputDecoration({
+    // bool? isEdit,
     required String text,
     required String label,
     bool isPassVisible = false,

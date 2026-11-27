@@ -52,7 +52,7 @@ class DbHelper {
     Database db = await initDb();
     int rows = await db.update(tableNote,{
       noteTitle : title,
-      description : description,
+      noteDescription : description,
     },where: "$noteId = ?",whereArgs: ["$Id"]);
     //for multiple args
   // },where: "$noteId = ? AND $noteTitle = ? ",whereArgs: ["$Id","$title"]);

@@ -231,14 +231,18 @@ class _DashboardState extends State<Dashboard>{
                        mainAxisAlignment: MainAxisAlignment.end,
                        children: [
                          IconButton(onPressed: () {
-                            showModalBottomSheet(context: context, builder: (context) {
-                              return _bottomSheetUI();
+                           titleController.text = notes[index][DbHelper.noteTitle];
+                           descController.text = notes[index][DbHelper.noteDescription];
+
+                           showModalBottomSheet(context: context, builder: (context) {
+                              return _bottomSheetUI(isEdit: true,id: notes[index][DbHelper.noteId],title: notes[index][DbHelper.noteTitle],desc:notes[index][DbHelper.noteDescription] );
                             },);
                          }, icon: Icon(Icons.edit)),
                          IconButton(onPressed: () async {
-                            bool isDeleted =await dbHelper!.deleteNote(Id: index);
+                            bool isDeleted =await dbHelper!.deleteNote(Id: notes[index][DbHelper.noteId]);
                             if(isDeleted){
                               getNotes();
+                              print("del done");
                             }
                          }, icon: Icon(Icons.delete)),
 
@@ -255,7 +259,11 @@ class _DashboardState extends State<Dashboard>{
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(onPressed: () {
-              showModalBottomSheet(context: context, builder:(context) {
+          // Clear previous edit values
+          titleController.clear();
+          descController.clear();
+
+          showModalBottomSheet(context: context, builder:(context) {
                 return _bottomSheetUI();
                 },);
         }, label:Text("Add note"),
@@ -268,12 +276,14 @@ class _DashboardState extends State<Dashboard>{
 
   @override
   void dispose() {
-
+    super.dispose();
+    titleController.dispose();
+    descController.dispose();
   }
 //rn we faced issue on hero nav during back button because what we doing is we have taken entire row in appbar which causes an issue
 
-  Widget _bottomSheetUI({bool? isEdit}){
-    return Container(
+  Widget _bottomSheetUI({bool isEdit = false , int? id ,String? title,String? desc}){
+     return Container(
       decoration: BoxDecoration(
           gradient: RadialGradient(
 
@@ -319,22 +329,38 @@ class _DashboardState extends State<Dashboard>{
                 Expanded(
                   child: ElevatedButton(style: AppDesigns.elevatedBtStyle(bgcolor: Colors.red),onPressed: () {
                     Navigator.pop(context);
+                    descController.clear();
+                    titleController.clear();
                   }, child: Text("Cancel")),
                 ),
                 SizedBox(width: 5,),
                 Expanded(
                   child: ElevatedButton(style: AppDesigns.elevatedBtStyle(),onPressed: () async {
-                    bool isAdded  =  await dbHelper!.add(title: titleController.text, description: descController.text);
-                    if(isAdded){
-                      getNotes();
-                      titleController.clear();
-                      descController.clear();
-                      Navigator.pop(context);
+                    if(!isEdit){
+                      bool isAdded  =  await dbHelper!.add(title: titleController.text, description: descController.text);
+                      if(isAdded){
+                        getNotes();
+                        titleController.clear();
+                        descController.clear();
+                        Navigator.pop(context);
+
+                      }
+                    }
+                    else{
+                      if(id!=null){
+                        bool isEdited = await dbHelper!.updateNote(Id: id, title: titleController.text, description: descController.text);
+                        if(isEdited){
+                          print("success");
+                          getNotes();
+                          Navigator.pop(context);
+                        }
+                      }
 
                     }
 
 
-                  }, child: Text("Add")),
+
+                  }, child: Text(!isEdit ? "Add" : "Edit")),
                 ),
 
               ],
